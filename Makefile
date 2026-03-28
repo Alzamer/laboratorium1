@@ -3,16 +3,17 @@
 all: comp_rtl comp_tb elab run
 
 comp_rtl:
-	xvlog -work lib_rtl -sv -f rtl.f
-
+	@echo "--> Kompilacja RTL..."
+	xvlog -work lib_rtl -sv -f rtl.f > comp_rtl.log 2>&1
 comp_tb:
-	xvlog -work lib_tb -sv -f tb.f
-
+	@echo "--> Kompilacja TB..."
+	xvlog -work lib_tb -sv -f tb.f > comp_tb.log 2>&1
 elab:
-	xelab -debug typical -L lib_rtl -L lib_tb lib_tb.top -s moja_symulacja
-
+	@echo "--> Elaboracja..."
+	xelab -debug typical -L lib_rtl -L lib_tb lib_tb.top -s moja_symulacja > elab.log 2>&1
 run:
-	xsim moja_symulacja -R
-
+	@echo "--> Symulacja (uruchamianie)..."
+	xsim moja_symulacja -R > sim.log 2>&1
 clean:
-	rm -rf xsim.dir *.log *.jou *.pb
+	@echo "--> Czyszczenie plikow tymczasowych..."
+	rm -rf xsim.dir *.log *.jou *.pb .Xil
