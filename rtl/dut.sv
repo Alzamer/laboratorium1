@@ -1,2 +1,5 @@
-module dut(input clk);
+module dut (
+    input logic clk,
+    input logic rstn
+);
 endmodule
