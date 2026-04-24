@@ -7,6 +7,7 @@ module controller (
     input  logic        valid,
     output logic        ready,
     input  logic [7:0]  cmd,
+    input  logic [15:0] addr_in,
     input  logic [7:0]  data_in,
     output logic [7:0]  data_out,
     
@@ -53,6 +54,7 @@ module controller (
     state_t state;
     logic [7:0] shift_reg, saved_cmd, saved_data;
     logic [3:0] bit_cnt;
+    logic [15:0] saved_addr;
 
     localparam DEV_ADDR_W = 8'hA0; 
     localparam DEV_ADDR_R = 8'hA1; 
@@ -72,7 +74,8 @@ module controller (
                     scl_out <= 1'b1; sda_out <= 1'b1; sda_en <= 1'b1;
                     if (valid) begin
                         saved_cmd <= cmd; saved_data <= data_in;
-                        state <= ST_START;
+                        saved_addr <= addr_in;
+			state <= ST_START;
                     end
                 end
 
@@ -89,7 +92,8 @@ module controller (
                 ST_ACK1: begin
                     scl_out <= 1'b0; sda_en <= 1'b0;
                     state <= ST_ADDR_HIGH;
-                    shift_reg <= (saved_cmd == CMD_READ_ID) ? 8'hFF : 8'h00; bit_cnt <= 7;
+		    shift_reg <= (saved_cmd == CMD_READ_ID || saved_cmd == CMD_READ_STATUS) ? 8'hFF : saved_addr[15:8];
+		    bit_cnt <= 7;
                 end
 
                 ST_ADDR_HIGH: begin
@@ -99,7 +103,8 @@ module controller (
                 ST_ACK2: begin
                     scl_out <= 1'b0; sda_en <= 1'b0;
                     state <= ST_ADDR_LOW;
-                    shift_reg <= (saved_cmd == CMD_READ_STATUS) ? 8'hFE : 8'h00; bit_cnt <= 7;
+		    shift_reg <= (saved_cmd == CMD_READ_ID) ? 8'hFF : (saved_cmd == CMD_READ_STATUS) ? 8'hFE : saved_addr[7:0];
+		    bit_cnt <= 7;
                 end
 
                 ST_ADDR_LOW: begin

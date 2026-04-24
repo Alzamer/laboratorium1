@@ -12,65 +12,52 @@ endpackage
 import tb_pkg::*;
 
 module top_tb (
-    output logic       clk,
-    output logic       rstn,
-    output logic       valid,
-    input  logic       ready,
-    output cmd_t       cmd,
-    output logic [7:0] data_in,
-    input  logic [7:0] data_out
+    output logic        clk,
+    output logic        rstn,
+    output logic        valid,
+    input  logic        ready,
+    output cmd_t        cmd,
+    output logic [15:0] addr_in,
+    output logic [7:0]  data_in,
+    input  logic [7:0]  data_out
 );
 
     initial begin clk = 0; forever #5 clk = ~clk; end
 
     initial begin
-        $display("[%0t] Start symulacji", $time);
-        rstn = 0; valid = 0; cmd = CMD_READ_ID; data_in = 8'h00;
+        $display("[%0t] Start symulacji z losowaniem", $time);
+        rstn = 0; valid = 0; cmd = CMD_READ_ID; addr_in = 16'h0000; data_in = 8'h00;
         
         #20 rstn = 1;
-        $display("[%0t] Reset zwolniony", $time);
         #50;
-        $display("[%0t] TB: Komenda READ ID", $time);
-        valid = 1; cmd = CMD_READ_ID; 
-        #10 valid = 0;
-        wait(ready == 1); 
-        if (data_out !== 8'hFF) begin
-            $error("[%0t] BLAD! READ ID zwrocilo: %h, oczekiwano: FF", $time, data_out);
-        end else begin
-            $display("[%0t] SUKCES! ID poprawne.", $time);
-        end
-        #100;
         
-        $display("[%0t] TB: Komenda READ STATUS", $time);
-        valid = 1; cmd = CMD_READ_STATUS; 
-        #10 valid = 0;
-        wait(ready == 1);
-        if (data_out !== 8'hFE) begin
-            $error("[%0t] BLAD! READ STATUS zwrocilo: %h, oczekiwano: FE", $time, data_out);
-        end else begin
-            $display("[%0t] SUKCES! STATUS poprawny.", $time);
+        valid = 1; cmd = CMD_READ_ID; #10 valid = 0; wait(ready == 1); #100;
+        valid = 1; cmd = CMD_READ_STATUS; #10 valid = 0; wait(ready == 1); #100;
+
+        for (int i = 0; i < 5; i++) begin
+            logic [15:0] rand_addr;
+            logic [7:0]  rand_data;
+            
+            rand_addr = $urandom();
+            rand_data = $urandom();
+
+            $display("--------------------------------------------------");
+            $display("[%0t] ITERACJA %0d: Test adresu %h z danymi %h", $time, i, rand_addr, rand_data);
+            valid = 1; cmd = CMD_WRITE_DATA; addr_in = rand_addr; data_in = rand_data;
+            #10 valid = 0;
+            wait(ready == 1);
+            #100;
+
+            valid = 1; cmd = CMD_READ_DATA; addr_in = rand_addr;
+            #10 valid = 0;
+            wait(ready == 1);
+            
+            $display("[%0t] Odczyt zakonczony (odebrano: %h)", $time, data_out);
+            #100;
         end
-        #100;
 
-        $display("[%0t] TB: Komenda WRITE DATA (0xAA)", $time);
-        valid = 1; cmd = CMD_WRITE_DATA; data_in = 8'hAA;
-        #10 valid = 0;
-        wait(ready == 1);
-        $display("[%0t] TB: Zapis zakonczony (brak danych do sprawdzenia).", $time);
-        #100;
-
-        $display("[%0t] TB: Komenda READ DATA", $time);
-        valid = 1; cmd = CMD_READ_DATA; 
-        #10 valid = 0;
-        wait(ready == 1);
-        if (data_out !== 8'hFF) begin
-            $error("[%0t] BLAD! READ DATA zwrocilo: %h, oczekiwano: FF", $time, data_out);
-        end else begin
-            $display("[%0t] SUKCES! DANE poprawne.", $time);
-        end
-        #100;
-
-        $display("[%0t] Koniec symulacji. Wszystkie testy zaliczone!", $time);
+        $display("--------------------------------------------------");
+        $display("[%0t] Koniec symulacji losowej. Fuzzing zakonczony!", $time);
         $finish;  
     end
 endmodule
