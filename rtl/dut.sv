@@ -7,7 +7,8 @@ module dut (
     output logic       ready,
     input  logic [7:0] cmd,
     input  logic [7:0] data_in,
-    output logic [7:0] data_out
+    output logic [7:0] data_out,
+    input logic [15:0] addr_in
 );
 
     wire scl_line;
@@ -22,7 +23,8 @@ module dut (
         .data_in  (data_in),
         .data_out (data_out),
         .scl      (scl_line),
-        .sda      (sda_line)
+        .sda      (sda_line),
+	.addr_in  (addr_in)
     );
 
     M24CSM01 u_memory (
