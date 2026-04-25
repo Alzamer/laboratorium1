@@ -4,3 +4,5 @@ xsim.dir/
 *.pb
 .Xil/
 cov/
+*.wdb
+*.str
