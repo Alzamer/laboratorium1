@@ -3,3 +3,6 @@ xsim.dir/
 *.jou
 *.pb
 .Xil/
+cov/
+*.wdb
+*.str
