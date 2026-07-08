@@ -1,6 +1,7 @@
 WAVE ?= 0
 COV  ?= 0
 V    ?= UVM_LOW 
+TEST ?= my_base_test
 
 XELAB_ARGS = -debug typical -timescale 1ns/ps -L uvm -L lib_rtl -L lib_tb lib_tb.top -s moja_symulacja
 
@@ -27,9 +28,9 @@ elab:
 run:
 	@echo "--> Symulacja (uruchamianie)..."
 ifeq ($(WAVE), 1)
-	xsim moja_symulacja -gui -testplusarg UVM_VERBOSITY=$(V)
+	xsim moja_symulacja -gui -testplusarg UVM_VERBOSITY=$(V) -testplusarg UVM_TESTNAME=$(TEST)
 else
-	xsim moja_symulacja -R -testplusarg UVM_VERBOSITY=$(V) > sim.log 2>&1
+	xsim moja_symulacja -R -testplusarg UVM_VERBOSITY=$(V) -testplusarg UVM_TESTNAME=$(TEST) > sim.log 2>&1
 endif
 
 cov_report:
