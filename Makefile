@@ -1,7 +1,7 @@
 WAVE ?= 0
 COV  ?= 0
 V    ?= UVM_LOW 
-TEST ?= my_base_test
+TEST ?= myprefix_base_test
 
 XELAB_ARGS = -debug typical -timescale 1ns/ps -L uvm -L lib_rtl -L lib_tb lib_tb.top -s moja_symulacja
 
