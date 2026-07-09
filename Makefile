@@ -1,6 +1,13 @@
 WAVE ?= 0
 COV  ?= 0
 V    ?= UVM_LOW 
+
+ifeq ($(COV), 1)
+    XVLOG_COV_FLAG = -d COV_ENABLE
+else
+    XVLOG_COV_FLAG = 
+endif
+
 TEST ?= myprefix_base_test
 
 XELAB_ARGS = -debug typical -timescale 1ns/ps -L uvm -L lib_rtl -L lib_tb lib_tb.top -s moja_symulacja
@@ -19,7 +26,7 @@ comp_rtl:
 
 comp_tb:
 	@echo "--> Kompilacja TB..."
-	xvlog -work lib_tb -sv -L uvm -f tb.f > comp_tb.log 2>&1
+	xvlog $(XVLOG_COV_FLAG) -work lib_tb -sv -L uvm -f tb.f > comp_tb.log 2>&1
 
 elab:
 	@echo "--> Elaboracja..."
