@@ -1,32 +1,32 @@
 `timescale 1ns / 1ps
+import uvm_pkg::*;
+import my_uvm_pkg::*;
+`include "uvm_macros.svh"
+
 module top ();
-    logic clk_sig;
-    logic rstn_sig;
-    logic       valid_sig;
-    logic       ready_sig;
-    logic [7:0] cmd_sig;
-    logic [7:0] data_in_sig;
-    logic [7:0] data_out_sig;
-    wire [15:0] addr_in;
+    logic clk;
+    initial clk = 0;
+    always #5 clk = ~clk;
+    dut_if vif(.clk(clk));
+
+    initial begin
+        vif.rstn = 1'b0;
+        #20 vif.rstn = 1'b1;
+    end
+
     dut instance1 (
-        .clk      (clk_sig),
-        .rstn     (rstn_sig),
-        .valid    (valid_sig),
-        .ready    (ready_sig),
-        .cmd      (cmd_sig),
-        .data_in  (data_in_sig),
-        .data_out (data_out_sig),
-	.addr_in(addr_in)
+        .clk     (vif.clk),
+        .rstn    (vif.rstn),
+        .valid   (vif.valid),
+        .ready   (vif.ready),
+        .cmd     (vif.cmd),
+        .data_in (vif.data_in),
+        .data_out(vif.data_out),
+        .addr_in (vif.addr_in)
     );
 
-    top_tb instance2 (
-        .clk      (clk_sig),
-        .rstn     (rstn_sig),
-        .valid    (valid_sig),
-        .ready    (ready_sig),
-        .cmd      (cmd_sig),
-        .data_in  (data_in_sig),
-        .data_out (data_out_sig),
-	.addr_in(addr_in)
-    );
+    initial begin
+        uvm_config_db#(virtual dut_if)::set(null, "*", "vif_name", vif);
+        run_test(); 
+    end
 endmodule
