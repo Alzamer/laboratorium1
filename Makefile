@@ -47,3 +47,7 @@ cov_report:
 clean:
 	@echo "--> Czyszczenie plikow tymczasowych..."
 	rm -rf xsim.dir *.log *.jou *.pb .Xil *.wdb cov/
+sanity_check:
+	@echo "--> Uruchamianie Sanity Check..."
+	@# Odczytujemy test z pliku i odpalamy go z COV=0 (wymóg 3.d)
+	@TEST_NAME=$$(cat sanity.txt); make TEST=$$TEST_NAME COV=0
