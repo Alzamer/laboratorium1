@@ -1,6 +1,13 @@
 WAVE ?= 0
 COV  ?= 0
 V    ?= UVM_LOW 
+
+ifeq ($(COV), 1)
+    XVLOG_COV_FLAG = -d COV_ENABLE
+else
+    XVLOG_COV_FLAG = 
+endif
+
 TEST ?= myprefix_base_test
 
 XELAB_ARGS = -debug typical -timescale 1ns/ps -L uvm -L lib_rtl -L lib_tb lib_tb.top -s moja_symulacja
@@ -19,7 +26,7 @@ comp_rtl:
 
 comp_tb:
 	@echo "--> Kompilacja TB..."
-	xvlog -work lib_tb -sv -L uvm -f tb.f > comp_tb.log 2>&1
+	xvlog $(XVLOG_COV_FLAG) -work lib_tb -sv -L uvm -f tb.f > comp_tb.log 2>&1
 
 elab:
 	@echo "--> Elaboracja..."
@@ -40,3 +47,15 @@ cov_report:
 clean:
 	@echo "--> Czyszczenie plikow tymczasowych..."
 	rm -rf xsim.dir *.log *.jou *.pb .Xil *.wdb cov/
+sanity_check:
+	@echo "--> Uruchamianie Sanity Check..."
+	@# Odczytujemy test z pliku i odpalamy go z COV=0 (wymóg 3.d)
+	@TEST_NAME=$$(cat sanity.txt); make TEST=$$TEST_NAME COV=0
+regression:
+	@echo "--> Uruchamianie pelnej regresji..."
+	@for test_name in $$(cat regression.txt); do \
+		echo "========================================"; \
+		echo ">>> Uruchamiam test: $$test_name <<<"; \
+		echo "========================================"; \
+		make TEST=$$test_name COV=$(COV); \
+	done
