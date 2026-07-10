@@ -51,3 +51,11 @@ sanity_check:
 	@echo "--> Uruchamianie Sanity Check..."
 	@# Odczytujemy test z pliku i odpalamy go z COV=0 (wymóg 3.d)
 	@TEST_NAME=$$(cat sanity.txt); make TEST=$$TEST_NAME COV=0
+regression:
+	@echo "--> Uruchamianie pelnej regresji..."
+	@for test_name in $$(cat regression.txt); do \
+		echo "========================================"; \
+		echo ">>> Uruchamiam test: $$test_name <<<"; \
+		echo "========================================"; \
+		make TEST=$$test_name COV=$(COV); \
+	done
