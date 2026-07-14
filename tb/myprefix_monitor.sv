@@ -20,7 +20,7 @@ class myprefix_monitor extends uvm_monitor;
         forever begin
             wait(vif.valid == 1'b1 && vif.ready == 1'b1);
             tr = myprefix_sequence_item::type_id::create("tr");
-            tr.cmd     = vif.cmd;
+            tr.cmd = cmd_e'(vif.cmd);
             tr.addr_in = vif.addr_in;
             tr.data_in = vif.data_in;
             @(negedge vif.valid);
