@@ -51,19 +51,24 @@ regression:
 	@echo "--> Uruchamianie pelnej regresji..."
 	@rm -rf merged_covdb cov_report
 	@mkdir -p merged_covdb
-	@for test_name in $$(cat regression.txt); do \
-		echo "========================================"; \
-		echo ">>> Uruchamiam test: $$test_name <<<"; \
-		echo "========================================"; \
-		make TEST=$$test_name COV=$(COV); \
-		if [ "$(COV)" = "1" ]; then \
-			cp -r cov/xsim.covdb merged_covdb/$$test_name; \
-		fi; \
-	done
+	@while read -r test_name runs; do \
+		if [ -z "$$test_name" ]; then continue; fi; \
+		if [ -z "$$runs" ]; then runs=1; fi; \
+		for i in $$(seq 1 $$runs); do \
+			echo "========================================"; \
+			echo ">>> Uruchamiam test: $$test_name (Iteracja $$i z $$runs) <<<"; \
+			echo "========================================"; \
+			make TEST=$$test_name COV=$(COV); \
+			if [ "$(COV)" = "1" ]; then \
+				cp -r cov/xsim.covdb merged_covdb/$${test_name}_run_$${i}; \
+			fi; \
+		done; \
+	done < regression.txt
 
 cov_report:
 	@echo "--> Generowanie zmergowanego raportu HTML..."
-	xcrg -dir merged_covdb/myprefix_base_test \
-	     -dir merged_covdb/myprefix_long_rw_test \
-	     -dir merged_covdb/myprefix_err_inject_test \
-	     -report_dir cov_report -report_format html
+	@xcrg_args=""; \
+	for dir in merged_covdb/*; do \
+		xcrg_args="$$xcrg_args -dir $$dir"; \
+	done; \
+	xcrg $$xcrg_args -report_dir cov_report -report_format html
