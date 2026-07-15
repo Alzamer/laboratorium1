@@ -20,7 +20,6 @@ class myprefix_rand_seq extends myprefix_base_seq;
     endfunction
 
     virtual task body();
-        myprefix_sequence_item req;
         int iters = seq_len;
         
         `uvm_info("RAND_SEQ", $sformatf("Wylosowano dlugosc sekwencji: %0s (%0d iteracji)", seq_len.name(), iters), UVM_LOW)
@@ -33,18 +32,18 @@ class myprefix_rand_seq extends myprefix_base_seq;
             
             if (!req.randomize()) `uvm_error("RAND_SEQ", "Blad randomizacji!")
             if (i == 0) begin
-                req.cmd = 8'h04;
+                req.cmd = UVM_CMD_WRITE_DATA;
             end 
             else if (i == 1) begin
-                req.cmd = 8'h03;
+                req.cmd = UVM_CMD_READ_DATA;
             end 
             else begin
                 if (!req.randomize() with {
                     cmd dist { 
-                        8'h04 := 45,
-                        8'h03 := 45,
-                        8'h01 := 5,
-                        8'h02 := 5
+                        UVM_CMD_WRITE_DATA := 45,
+                        UVM_CMD_READ_DATA := 45,
+                        UVM_CMD_READ_ID := 5,
+                        UVM_CMD_READ_STATUS := 5
                     };
                 }) `uvm_error("RAND_SEQ", "Blad randomizacji CMD!")
             end
