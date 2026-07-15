@@ -19,10 +19,10 @@ class myprefix_scoreboard extends uvm_scoreboard;
         `uvm_info(get_name(), $sformatf("Scoreboard przechwycił CMD: %0h", tr.cmd), UVM_LOW)
         
         case (tr.cmd)
-            8'h01: check_read_id(tr);
-            8'h02: store_read_status(tr);
-            8'h03: check_read_data(tr);
-            8'h04: store_write_data(tr);
+            UVM_CMD_READ_ID: check_read_id(tr);
+            UVM_CMD_READ_STATUS: store_read_status(tr);
+            UVM_CMD_READ_DATA: check_read_data(tr);
+            UVM_CMD_WRITE_DATA: store_write_data(tr);
             default: `uvm_warning(get_name(), $sformatf("Nieznana komenda: %0h", tr.cmd))
         endcase
     endfunction
