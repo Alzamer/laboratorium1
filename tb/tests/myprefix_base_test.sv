@@ -2,6 +2,7 @@ class myprefix_base_test extends uvm_test;
     `uvm_component_utils(myprefix_base_test)
     
     myprefix_env m_env;
+    myprefix_config m_cfg; 
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -10,7 +11,17 @@ class myprefix_base_test extends uvm_test;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         m_env = myprefix_env::type_id::create("m_env", this);
-        uvm_top.set_timeout(10ms, 1);
+        m_cfg = myprefix_config::type_id::create("m_cfg");
+        m_cfg.scoreboard_enable = 1; 
+        
+        if ($test$plusargs("COV_ENABLE")) begin
+           m_cfg.coverage_enable = 1;
+       end else begin
+           m_cfg.coverage_enable = 0; 
+       end
+
+        uvm_config_db#(myprefix_config)::set(this, "m_env", "env_cfg", m_cfg);
+        uvm_top.set_timeout(10ms, 1); 
     endfunction
 
     task main_phase(uvm_phase phase);
@@ -22,6 +33,7 @@ class myprefix_base_test extends uvm_test;
     endtask
 
     function void end_of_elaboration_phase(uvm_phase phase);
-        uvm_top.print_topology();
+        uvm_top.print_topology(); 
+        m_cfg.print(); 
     endfunction
 endclass

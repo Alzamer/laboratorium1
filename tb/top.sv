@@ -10,7 +10,8 @@ module top ();
     dut_if vif(.clk(clk));
 
     initial begin
-        vif.rstn = 1'b0;
+        vif.rstn = 1'b1;
+	#5 vif.rstn = 1'b0;
         #20 vif.rstn = 1'b1;
     end
 
