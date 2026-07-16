@@ -14,9 +14,12 @@ class myprefix_base_test extends uvm_test;
         m_cfg = myprefix_config::type_id::create("m_cfg");
         m_cfg.scoreboard_enable = 1; 
         
-`ifdef COV_ENABLE
-        m_cfg.coverage_enable = 1;
-`endif
+        if ($test$plusargs("COV_ENABLE")) begin
+           m_cfg.coverage_enable = 1;
+       end else begin
+           m_cfg.coverage_enable = 0; 
+       end
+
         uvm_config_db#(myprefix_config)::set(this, "m_env", "env_cfg", m_cfg);
         uvm_top.set_timeout(10ms, 1); 
     endfunction
